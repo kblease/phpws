@@ -71,13 +71,17 @@ class WebSocketTransportHybi extends WebSocketTransport
                 $this->close();
             else {
                 $this->_socket->write($response->toString());
-                $this->logger->debug("Got an HYBI style request, sent HYBY handshake response");
+                if(!is_null($this->logger)) {
+                    $this->logger->debug("Got an HYBI style request, sent HYBY handshake response");
+                }
 
                 $this->connected = true;
                 $this->emit("connect");
             }
         } catch(Exception $e){
-            $this->logger->err("Connection error, message: ".$e->getMessage());
+            if(!is_null($this->logger)) {
+                $this->logger->err("Connection error, message: ".$e->getMessage());
+            }
             $this->close();
         }
     }
@@ -153,7 +157,9 @@ class WebSocketTransportHybi extends WebSocketTransport
     {
         switch ($frame->getType()) {
             case WebSocketOpcode::CloseFrame :
-                $this->logger->notice("Got CLOSE frame");
+                if(!is_null($this->logger)) {
+                    $this->logger->notice("Got CLOSE frame");
+                }
 
                 $frame = WebSocketFrame::create(WebSocketOpcode::CloseFrame);
                 $this->sendFrame($frame);
