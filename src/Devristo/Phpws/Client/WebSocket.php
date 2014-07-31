@@ -55,7 +55,7 @@ class WebSocket extends EventEmitter
     
     protected $streamOptions = null;
 
-    public function __construct($url, LoopInterface $loop, LoggerInterface $logger, array $streamOptions = null)
+    public function __construct($url, LoopInterface $loop, LoggerInterface $logger = null, array $streamOptions = null)
     {
         $this->logger = $logger;
         $this->loop = $loop;
@@ -97,14 +97,18 @@ class WebSocket extends EventEmitter
                 if($timeOut){
                     $timeOutTimer = $that->loop->addTimer($timeOut, function() use($promise, $stream, $that){
                         $stream->close();
-                        $that->logger->notice("Timeout occured, closing connection");
+                        if(!is_null($that->logger)) {
+                            $that->logger->notice("Timeout occured, closing connection");
+                        }
                         $that->emit("error");
                         $promise->reject("Timeout occured");
                     });
                 } else $timeOutTimer = null;
 
                 $transport = new WebSocketTransportHybi($stream);
-                $transport->setLogger($that->logger);
+                if(!is_null($that->logger)) {
+                    $transport->setLogger($that->logger);
+                }
                 $that->transport = $transport;
                 $that->stream = $stream;
 
@@ -143,7 +147,9 @@ class WebSocket extends EventEmitter
                 $that->state = WebSocket::STATE_HANDSHAKE_SENT;
             }, function($reason) use ($that)
             {
-                $that->logger->err($reason);
+                if(!is_null($that->logger)) {
+                    $that->logger->err($reason);
+                }
             });
 
         return $promise;
