@@ -158,7 +158,7 @@ class WebSocketTransportHybi extends WebSocketTransport
         switch ($frame->getType()) {
             case WebSocketOpcode::CloseFrame :
                 if(!is_null($this->logger)) {
-                    $this->logger->notice("Got CLOSE frame");
+                    //$this->logger->notice("Got CLOSE frame");
                 }
 
                 $frame = WebSocketFrame::create(WebSocketOpcode::CloseFrame);
